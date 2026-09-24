@@ -1,0 +1,46 @@
+services:
+  frontend:
+    image: myadav206/sms-frontend:latest
+    container_name: sms-frontend
+    ports:
+      - "5173:5173"
+    restart: unless-stopped
+    depends_on:
+      - backend
+  
+  backend:
+    image: myadav206/sms-backend:letest
+    container_name: sms-backend
+    ports:
+      - "8000:8000"
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: sms
+      MYSQL_USER: sms_user
+      MYSQL_PASSWORD: root123
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  mysql:
+    image: mysql:8.0
+    container_name: sms-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: sms
+      MYSQL_USER: sms_user
+      MYSQL_PASSWORD: root123
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD","mysqladmin","ping","-h","localhost","-proot9090"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mysql_data:
